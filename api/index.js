@@ -1,6 +1,14 @@
 export default async function handler(req, res) {
-  const targetUrl = 'https://api.binance.com' + req.url;
+  // 1. 智能判断：如果请求路径里包含 /fapi/ (合约接口)，就转发给 fapi.binance.com
+  let targetHost = 'https://api.binance.com';
+  if (req.url.startsWith('/fapi')) {
+    targetHost = 'https://fapi.binance.com';
+  }
 
+  // 2. 拼接最终目标地址
+  const targetUrl = targetHost + req.url;
+
+  // 3. 抹除美国机房指纹
   const headers = { ...req.headers };
   delete headers['host'];
   delete headers['x-forwarded-for'];
